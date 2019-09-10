@@ -1,0 +1,34 @@
+version: "3.6"
+
+services:
+  xapp:
+    image: xapp:latest
+    env_file:
+      - ./xapp.env
+    ports:
+      - "9090:9090"
+    command:
+      - "xapp"
+    restart: always
+    environment:
+      ENVIRONMENT: "test"
+      POSTGRES_DSN: "postgres://xapp:xapp123@postgres:5432/xapp?sslmode=disable"
+      IMAGE_FOLDER: "/tmp/xapp-images"
+    volumes:
+      - ./../images:/tmp/xapp-images
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:10.6
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: xapp
+      POSTGRES_PASSWORD: xapp123
+      POSTGRES_DB: xapp
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U xapp"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
