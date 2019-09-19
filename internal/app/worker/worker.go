@@ -13,6 +13,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"image"
 	"image/png"
+	"io/ioutil"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -87,12 +89,17 @@ func (tw *TweetWorker) processTweet(twt *twitter.Tweet) {
 		return
 	}
 
-	// Fetch image
-	data, err := tw.imageLoader.Load(tweet.URL)
+	// EXCERSIE 1: Fetch image in separate imageloader struct!
+	resp, err := http.Get(tweet.URL)
 	if err != nil {
-		logrus.WithError(err).Errorf("unable to load image from url %v", tweet.URL)
 		return
 	}
+	if resp.StatusCode != 200 {
+		return
+	}
+	data, _ := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	// END EXCERISE 1
 
 	var imgData image.Image
 	var decodeErr error
