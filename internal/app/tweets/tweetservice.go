@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 type Streamer struct {
@@ -31,30 +30,15 @@ func NewStreamer(cfg cmd.TwitterConfig, tweetsChannel chan *twitter.Tweet) *Stre
 }
 
 func (s *Streamer) ConsumeStream(keyword string) {
-
-	var counter = 0
-	countChan := make(chan int)
 	// Convenience Demux demultiplexed stream messages
 	demux := twitter.NewSwitchDemux()
 	demux.Tweet = func(tweet *twitter.Tweet) {
-		// Pass incoming tweets to our own tweetschannel
-		counter++
-		countChan <- counter
 		s.tweetsChannel <- tweet
 	}
 
-	go func() {
+	// EXERCISE 2: Count _total_ amount of tweets passed to the tweets channel
 
-		printChan := time.Tick(time.Second * 5)
-		last := 0
-		for {
-			select {
-			case _ = <-printChan:
-				logrus.Infof("%v tweets processed", last)
-			case last = <-countChan:
-			}
-		}
-	}()
+	// END EXERCISE 2
 
 	logrus.Infof("Starting Stream for keyword %v...", keyword)
 

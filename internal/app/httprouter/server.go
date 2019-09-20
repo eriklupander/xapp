@@ -26,7 +26,6 @@ func (s *Server) SetupRoutes() {
 
 	s.mux.Use(middleware.RequestID)
 	s.mux.Use(middleware.RealIP)
-	//s.mux.Use(middleware.Logger)
 	s.mux.Use(middleware.Recoverer)
 	s.mux.Use(middleware.Timeout(time.Minute))
 

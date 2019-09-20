@@ -34,3 +34,12 @@ mock:
 	mockgen -source internal/app/filehandler/filehandler.go -destination internal/app/filehandler/mock_filehandler/mock_filehandler.go -package mock_filehandler
 	mockgen -source internal/app/persistence/storage.go -destination internal/app/persistence/mock_storage/mock_storage.go -package mock_storage
 	mockgen -source internal/app/imageloader/imageloader.go -destination internal/app/imageloader/mock_imageloader/mock_imageloader.go -package mock_imageloader
+
+localdb:
+	docker run \
+        	-e POSTGRES_USER=xapp \
+        	-e POSTGRES_PASSWORD=xapp123 \
+        	-e POSTGRES_DB=xapp \
+        	-v xappdb:/var/lib/postgresql/data \
+        	-p 5432:5432 \
+        	postgres:10.6
