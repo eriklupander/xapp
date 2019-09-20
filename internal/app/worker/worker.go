@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/callistaenterprise/xapp/internal/app/filehandler"
-	"github.com/callistaenterprise/xapp/internal/app/imageloader"
 	"github.com/callistaenterprise/xapp/internal/app/imageprocessor"
 	"github.com/callistaenterprise/xapp/internal/app/model"
 	"github.com/callistaenterprise/xapp/internal/app/persistence"
@@ -23,12 +22,11 @@ type TweetWorker struct {
 	imgProcessor imageprocessor.ImageProcessor
 	db           persistence.Database
 	filehandler  filehandler.FileHandler
-	imageLoader  imageloader.ImageLoader
 	tweetChan    chan *twitter.Tweet
 }
 
-func NewTweetWorker(imgProcessor imageprocessor.ImageProcessor, db persistence.Database, filehandler filehandler.FileHandler, imageLoader imageloader.ImageLoader, tweetChan chan *twitter.Tweet) *TweetWorker {
-	return &TweetWorker{imgProcessor: imgProcessor, db: db, filehandler: filehandler, imageLoader: imageLoader, tweetChan: tweetChan}
+func NewTweetWorker(imgProcessor imageprocessor.ImageProcessor, db persistence.Database, filehandler filehandler.FileHandler, tweetChan chan *twitter.Tweet) *TweetWorker {
+	return &TweetWorker{imgProcessor: imgProcessor, db: db, filehandler: filehandler, tweetChan: tweetChan}
 }
 
 func (tw *TweetWorker) Start() {
@@ -92,12 +90,14 @@ func (tw *TweetWorker) processTweet(twt *twitter.Tweet) {
 	// EXCERSIE 1: Fetch image in separate imageloader struct!
 	resp, err := http.Get(tweet.URL)
 	if err != nil {
+		logrus.WithError(err).Errorf("image '%v' download failed", tweet.URL)
+	}
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		logrus.WithError(err).Errorf("image '%v' read of body failed", tweet.URL)
 		return
 	}
-	if resp.StatusCode != 200 {
-		return
-	}
-	data, _ := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	// END EXCERISE 1
 

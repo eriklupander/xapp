@@ -4,7 +4,6 @@ import (
 	"github.com/alexflint/go-arg"
 	"github.com/callistaenterprise/xapp/internal/app/filehandler/local"
 	"github.com/callistaenterprise/xapp/internal/app/httprouter"
-	"github.com/callistaenterprise/xapp/internal/app/imageloader"
 	"github.com/callistaenterprise/xapp/internal/app/imageprocessor"
 	"github.com/callistaenterprise/xapp/internal/app/persistence/postgres"
 	"github.com/callistaenterprise/xapp/internal/app/tweets"
@@ -41,7 +40,7 @@ func main() {
 	go tweetService.ConsumeStream("cat")
 
 	// Start workers
-	workers := worker.NewTweetWorker(imageProcessor, db, local.NewDiskStorage(cfg.ImageFolder), imageloader.NewHTTPImageLoader(), tweetChan)
+	workers := worker.NewTweetWorker(imageProcessor, db, local.NewDiskStorage(cfg.ImageFolder), tweetChan)
 	workers.Start()
 
 	// Start HTTP server
