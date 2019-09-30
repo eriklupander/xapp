@@ -25,8 +25,8 @@ type TweetWorker struct {
 	tweetChan    chan *twitter.Tweet
 }
 
-func NewTweetWorker(imgProcessor imageprocessor.ImageProcessor, db persistence.Database, filehandler filehandler.FileHandler, tweetChan chan *twitter.Tweet) *TweetWorker {
-	return &TweetWorker{imgProcessor: imgProcessor, db: db, filehandler: filehandler, tweetChan: tweetChan}
+func NewTweetWorker(ip imageprocessor.ImageProcessor, db persistence.Database, fh filehandler.FileHandler, tweetChan chan *twitter.Tweet) *TweetWorker {
+	return &TweetWorker{imgProcessor: ip, db: db, filehandler: fh, tweetChan: tweetChan}
 }
 
 func (tw *TweetWorker) Start() {
@@ -43,34 +43,6 @@ func (tw *TweetWorker) process() {
 	for twt := range tw.tweetChan {
 		tw.processTweet(twt)
 	}
-}
-
-func (tw *TweetWorker) filter(tweet *twitter.Tweet) (model.Tweet, error) {
-	// Perform some extra filtering.
-	if tweet.PossiblySensitive || tweet.InReplyToStatusID != 0 || tweet.Text[0:2] == "RT" {
-		return model.Tweet{}, errors.New("filtered out")
-	}
-
-	// Check if tweet has an image
-	if tweet.Entities != nil {
-		if len(tweet.Entities.Media) > 0 {
-
-			// ConsumeStream each media as a message
-			for _, media := range tweet.Entities.Media {
-				if media.Type == "photo" {
-
-					created, _ := tweet.CreatedAtTime()
-					return model.Tweet{
-						Author:    tweet.User.ScreenName,
-						Text:      tweet.Text,
-						CreatedAt: created,
-						URL:       media.MediaURL,
-					}, nil
-				}
-			}
-		}
-	}
-	return model.Tweet{}, errors.New("filtered out")
 }
 
 func (tw *TweetWorker) processTweet(twt *twitter.Tweet) {
@@ -142,4 +114,32 @@ func (tw *TweetWorker) processTweet(twt *twitter.Tweet) {
 	logrus.WithField("duration", time.Now().Sub(start)).
 		WithField("suffix", suffix).
 		Info("successfully processed an image!")
+}
+
+func (tw *TweetWorker) filter(tweet *twitter.Tweet) (model.Tweet, error) {
+	// Perform some extra filtering.
+	if tweet.PossiblySensitive || tweet.InReplyToStatusID != 0 || tweet.Text[0:2] == "RT" {
+		return model.Tweet{}, errors.New("filtered out")
+	}
+
+	// Check if tweet has an image
+	if tweet.Entities != nil {
+		if len(tweet.Entities.Media) > 0 {
+
+			// ConsumeStream each media as a message
+			for _, media := range tweet.Entities.Media {
+				if media.Type == "photo" {
+
+					created, _ := tweet.CreatedAtTime()
+					return model.Tweet{
+						Author:    tweet.User.ScreenName,
+						Text:      tweet.Text,
+						CreatedAt: created,
+						URL:       media.MediaURL,
+					}, nil
+				}
+			}
+		}
+	}
+	return model.Tweet{}, errors.New("filtered out")
 }
