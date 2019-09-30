@@ -87,7 +87,7 @@ func (tw *TweetWorker) processTweet(twt *twitter.Tweet) {
 		return
 	}
 
-	// EXCERCISE 1: Fetch image in separate imageloader struct!
+	// EXERCISE 1: Fetch image in separate imageloader struct!
 	resp, err := http.Get(tweet.URL)
 	if err != nil {
 		logrus.WithError(err).Errorf("image '%v' download failed", tweet.URL)
@@ -100,7 +100,7 @@ func (tw *TweetWorker) processTweet(twt *twitter.Tweet) {
 		return
 	}
 	defer resp.Body.Close()
-	// END EXCERCISE 1
+	// END EXERCISE 1
 
 	var imgData image.Image
 	var decodeErr error
