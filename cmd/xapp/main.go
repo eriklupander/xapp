@@ -56,7 +56,7 @@ func awaitSigterm() {
 	termChan := make(chan os.Signal)
 	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
 	<-termChan
-	logrus.Info("Shutdown initiated, waiting for workers to finish...")
-	time.Sleep(time.Second * 5)
+	logrus.Info("Shutdown initiated...")
+	time.Sleep(time.Second * 1)
 	logrus.Info("All done, shutting down!")
 }

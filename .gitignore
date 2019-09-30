@@ -13,11 +13,13 @@
 
 bin/
 images
+images_old
 xapp.iml
 
 # Make sure no secret env vars leak into github.
 .env
 env.sh
 docker/xapp.env
+main
 
 .DS_Store

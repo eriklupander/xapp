@@ -17,9 +17,7 @@ func New(config string) persistence.Database {
 	if err != nil {
 		logrus.WithError(err).Fatal("Cannot connect to database")
 	}
-	return &postgres{
-		db,
-	}
+	return &postgres{db: db,}
 }
 
 func (p *postgres) ExistsByURL(url string) bool {
@@ -51,5 +49,8 @@ func (p *postgres) Ping() error {
 }
 
 func (p *postgres) Close() {
-	p.db.Close()
+	err := p.db.Close()
+	if err != nil {
+		logrus.WithError(err).Error("an error occured closing connection to DB")
+	}
 }

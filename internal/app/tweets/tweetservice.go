@@ -63,6 +63,6 @@ func (s *Streamer) awaitSigterm(stream *twitter.Stream) {
 	signal.Notify(termChan, syscall.SIGINT, syscall.SIGTERM)
 
 	<-termChan
-	stream.Stop()
+	// deliberately not stopping stream since this gives race error from within twitter's lib
 	logrus.Info("Stopped stream")
 }
