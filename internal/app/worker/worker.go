@@ -87,10 +87,11 @@ func (tw *TweetWorker) processTweet(twt *twitter.Tweet) {
 		return
 	}
 
-	// EXCERSIE 1: Fetch image in separate imageloader struct!
+	// EXCERCISE 1: Fetch image in separate imageloader struct!
 	resp, err := http.Get(tweet.URL)
 	if err != nil {
 		logrus.WithError(err).Errorf("image '%v' download failed", tweet.URL)
+		return
 	}
 
 	data, err := ioutil.ReadAll(resp.Body)
@@ -99,7 +100,7 @@ func (tw *TweetWorker) processTweet(twt *twitter.Tweet) {
 		return
 	}
 	defer resp.Body.Close()
-	// END EXCERISE 1
+	// END EXCERCISE 1
 
 	var imgData image.Image
 	var decodeErr error
@@ -124,7 +125,7 @@ func (tw *TweetWorker) processTweet(twt *twitter.Tweet) {
 		return
 	}
 
-	// ConsumeStream image to disk...
+	// Write image to disk...
 	err = tw.filehandler.Write(fmt.Sprintf("%v_%v.%v", tweet.Author, time.Now().Unix(), suffix), out.Bytes())
 	if err != nil {
 		logrus.WithError(err).Fatalf("unable to store converted image on disk")
